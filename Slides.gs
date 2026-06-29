@@ -1,48 +1,60 @@
 /******************************************************************
  * SISTEMA DE PERMISOS V3
+ * ---------------------------------------------------------------
  * Archivo : Slides.gs
+ * Versión : 3.0.0
  ******************************************************************/
 
 const Slides = (() => {
 
   /**
-   * Genera la credencial y devuelve el PNG.
+   * Genera la credencial.
+   * @param {Object} datos
+   * @returns {Blob}
    */
   function generar(datos) {
 
-    let copia = null;
+    let archivo = null;
 
     try {
 
-      copia = crearCopia(datos);
+      Utils.info("Creando copia de la plantilla...");
 
-      const presentation = SlidesApp.openById(copia.getId());
+      archivo = crearCopia(datos);
 
-      const slide = presentation.getSlides()[0];
+      const presentacion = SlidesApp.openById(
+        archivo.getId()
+      );
 
-      reemplazar(slide, Utils.generarMarcadores(datos));
+      const slide = presentacion.getSlides()[0];
 
-      presentation.saveAndClose();
+      const marcadores =
+        Utils.generarMarcadores(datos);
+
+      reemplazarMarcadores(
+        slide,
+        marcadores
+      );
+
+      presentacion.saveAndClose();
 
       Utilities.sleep(2000);
 
-      return exportar(copia.getId());
+      return exportarPNG(
+        archivo.getId()
+      );
+
+    } catch (error) {
+
+      Utils.error(error);
+
+      throw error;
 
     } finally {
 
-      if (copia) {
-
-        try {
-
-          copia.setTrashed(true);
-
-        } catch (e) {
-
-          Logger.log(e);
-
-        }
-
-      }
+      eliminarTemporal(
+        archivo
+      );
 
     }
 
@@ -53,11 +65,13 @@ const Slides = (() => {
    */
   function crearCopia(datos) {
 
-    const plantilla =
-      DriveApp.getFileById(CONFIG.TEMPLATE_SLIDE_ID);
+    const plantilla = DriveApp.getFileById(
+      CONFIG.TEMPLATE_ID
+    );
 
-    const carpeta =
-      DriveApp.getFolderById(CONFIG.TEMP_FOLDER_ID);
+    const carpeta = DriveApp.getFolderById(
+      CONFIG.TEMP_FOLDER_ID
+    );
 
     return plantilla.makeCopy(
 
@@ -72,62 +86,26 @@ const Slides = (() => {
   /**
    * Reemplaza todos los marcadores.
    */
-  function reemplazar(slide, tags) {
+  function reemplazarMarcadores(
 
-    Object.keys(tags).forEach(tag => {
+    slide,
 
-      slide.replaceAllText(
+    marcadores
 
-        tag,
+  ) {
 
-        tags[tag]
+    Object.keys(marcadores)
 
-      );
+      .forEach(tag => {
 
-    });
+        slide.replaceAllText(
 
-  }
+          tag,
 
-  /**
-   * Exporta la diapositiva como PNG.
-   */
-  function exportar(idPresentacion) {
+          marcadores[tag]
 
-    const presentacion =
-      SlidesApp.openById(idPresentacion);
-
-    const slideId =
-      presentacion.getSlides()[0].getObjectId();
-
-    const url =
-      "https://docs.google.com/presentation/d/" +
-      idPresentacion +
-      "/export/png?pageid=" +
-      slideId;
-
-    const respuesta =
-      UrlFetchApp.fetch(url, {
-
-        headers: {
-
-          Authorization:
-            "Bearer " +
-            ScriptApp.getOAuthToken()
-
-        }
+        );
 
       });
 
-    return respuesta
-      .getBlob()
-      .setName("Permiso.png");
-
   }
-
-  return {
-
-    generar
-
-  };
-
-})();
