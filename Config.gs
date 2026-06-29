@@ -1,6 +1,6 @@
 // ====== CONFIGURACIÓN GENERAL ======
 const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1520908688229924894/l7XI422PDnygCi_g3grFajTvlUjeQtvIH9WsfyijHme1YIIOTDFqWJ9IewycoWkScnQj"; // Tu webhook
-const TEMPLATE_SLIDE_ID = "1LzZy71hzBXXPf5SEmLQBFN5_AoWYnjwKlUKXzwobr-c";
+const TEMPLATE_SLIDE_ID = "16Ze2GBxQHYjnD2e-35Wy7Q4E0gK1HTim1Prh6OqN_nU";
 
 // Diccionario para convertir nombres en etiquetas de Discord
 const DISCORD_USERS = {
